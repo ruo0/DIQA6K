@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+
+# Cache / preprocessed data (regenerable)
+cache_resized_*/
+*.npy
+
+# Checkpoints / logs (large, not tracked; release via GitHub Releases if needed)
+checkpoints*/
+*.pth
+*.pt
+
+# Dataset (provided separately)
+DIQA-6K/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
