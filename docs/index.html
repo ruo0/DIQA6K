@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DIQA-Router | Distortion-Aware Feature Selection for Document Image Quality Assessment</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f1115;
+      --bg2: #161a22;
+      --card: #1c212b;
+      --line: #2a3140;
+      --txt: #e8ecf3;
+      --dim: #9aa4b5;
+      --acc: #4da3ff;
+      --acc2: #7c5cff;
+      --green: #3ddc97;
+      --red: #ff6b6b;
+      --yellow: #ffd166;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--txt);
+      font-family: 'Inter', sans-serif;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased
+    }
+
+    a {
+      color: var(--acc);
+      text-decoration: none
+    }
+
+    a:hover {
+      text-decoration: underline
+    }
+
+    .wrap {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 24px
+    }
+
+    /* ===== Hero ===== */
+    header {
+      text-align: center;
+      padding: 72px 20px 36px;
+      background: radial-gradient(1200px 500px at 50% -10%, #1b2740 0%, var(--bg) 60%)
+    }
+
+    h1 {
+      font-size: clamp(26px, 4vw, 40px);
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 14px
+    }
+
+    h1 .acc {
+      color: var(--acc)
+    }
+
+    .sub {
+      color: var(--dim);
+      font-size: 15px;
+      margin-bottom: 22px
+    }
+
+    .authors {
+      font-size: 16px;
+      margin-bottom: 6px
+    }
+
+    .affil {
+      color: var(--dim);
+      font-size: 13px;
+      margin-bottom: 22px
+    }
+
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 9px 18px;
+      border-radius: 8px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      font-size: 14px;
+      font-weight: 500;
+      transition: .2s
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      border-color: var(--acc);
+      text-decoration: none
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, var(--acc), var(--acc2));
+      border: none;
+      color: #fff
+    }
+
+    /* ===== Sections ===== */
+    section {
+      padding: 44px 0;
+      border-top: 1px solid var(--line)
+    }
+
+    h2 {
+      font-size: 22px;
+      margin-bottom: 18px;
+      font-weight: 600
+    }
+
+    h2::before {
+      content: "▸ ";
+      color: var(--acc)
+    }
+
+    p {
+      color: #c6cfdd;
+      margin-bottom: 14px;
+      font-size: 15px
+    }
+
+    /* Teaser */
+    .teaser {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      background: var(--bg2)
+    }
+
+    .teaser img {
+      width: 100%;
+      display: block
+    }
+
+    .teaser .cap {
+      padding: 10px 16px;
+      color: var(--dim);
+      font-size: 13px
+    }
+
+    /* Cards / gallery */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: .2s
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      border-color: var(--acc)
+    }
+
+    .card img {
+      width: 100%;
+      display: block
+    }
+
+    .card .body {
+      padding: 12px 16px
+    }
+
+    .card .body .t {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 4px
+    }
+
+    .card .body .d {
+      color: var(--dim);
+      font-size: 13px
+    }
+
+    .score {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px
+    }
+
+    .gt {
+      color: var(--green)
+    }
+
+    .pred {
+      color: var(--acc)
+    }
+
+    .err {
+      color: var(--red)
+    }
+
+    /* GIF area */
+    .gifbox {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      align-items: center;
+      background: var(--bg2);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px
+    }
+
+    .gifbox img {
+      width: min(420px, 100%);
+      border-radius: 10px;
+      border: 1px solid var(--line)
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      background: var(--card);
+      border-radius: 10px;
+      overflow: hidden
+    }
+
+    th,
+    td {
+      padding: 10px 14px;
+      text-align: center;
+      border-bottom: 1px solid var(--line)
+    }
+
+    th {
+      background: var(--bg2);
+      font-weight: 600
+    }
+
+    tr:hover {
+      background: #222836
+    }
+
+    .best {
+      color: var(--green);
+      font-weight: 700
+    }
+
+    .second {
+      color: var(--yellow);
+      font-weight: 600
+    }
+
+    /* Distortion bars */
+    .bars {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 13px
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 110px 1fr 1fr;
+      gap: 10px;
+      align-items: center
+    }
+
+    .bar-row .lbl {
+      color: var(--dim);
+      text-align: right
+    }
+
+    .bar {
+      height: 14px;
+      border-radius: 4px;
+      background: var(--bg2);
+      position: relative
+    }
+
+    .bar>span {
+      display: block;
+      height: 100%;
+      border-radius: 4px
+    }
+
+    .bar .gt {
+      background: var(--green);
+      opacity: .85
+    }
+
+    .bar .pred {
+      background: var(--acc);
+      opacity: .85
+    }
+
+    .leg {
+      font-size: 12px;
+      color: var(--dim);
+      margin-top: 8px
+    }
+
+    /* Citation */
+    pre {
+      background: #0c0e13;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      overflow-x: auto;
+      color: #c6cfdd
+    }
+
+    footer {
+      text-align: center;
+      padding: 36px;
+      color: var(--dim);
+      font-size: 13px;
+      border-top: 1px solid var(--line)
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 12px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      margin: 0 4px
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ================= HERO ================= -->
+  <header>
+    <h1>Route What Matters: <span class="acc">Distortion-Aware Feature Selection</span> for Document Image Quality
+      Assessment</h1>
+    <div class="sub">DIQA-Router · Official Project Page</div>
+    <div class="authors">Baoliang Chen, Ruochen Wu, Zhihua Zhou, Qiudan Zhang, Xu Wang</div>
+    <div class="affil">City University of Hong Kong · South China Normal University · Shenzhen University</div>
+    <div class="links">
+      <!-- Paper button hidden until the paper is public: <a class="btn primary" href="PAPER_PDF_LINK">📄 Paper</a> -->
+      <a class="btn primary" href="#top">📄 Paper (coming soon)</a>
+      <a class="btn" href="https://github.com/ruo0/DIQA6K">💻 Code</a>
+      <a class="btn" href="https://mega.nz/folder/SGol3YzB#js-PihQrsaow4yyQaeXpww">📦 Dataset (MEGA)</a>
+      <a class="btn" href="https://pan.baidu.com/s/1rxXcS8JXRhjQMzxxHkafyg?pwd=a73f">📦 Dataset (baidu)</a>
+      <a class="btn" href="#citation">📚 Citation</a>
+    </div>
+  </header>
+
+  <div class="wrap">
+
+    <!-- ================= TEASER ================= -->
+    <section>
+      <h2>Teaser</h2>
+      <div class="teaser">
+        <img src="assets/method.png" alt="DIQA-Router overview">
+        <div class="cap">A Swin Transformer extracts four hierarchical feature maps, a distortion-aware router selects
+          quality-relevant spatial positions and feature stages, and a dual-domain Transformer models spatial and
+          cross-scale interactions before quality regression.</div>
+      </div>
+    </section>
+
+    <!-- ================= ABSTRACT ================= -->
+    <section>
+      <h2>Abstract</h2>
+      <p>Document image quality assessment (DIQA) is essential for reliable document recognition and enhancement, yet
+        remains challenging due to the heterogeneity of real-world degradations in both the spatial extent of quality
+        evidence and the feature level required for their characterization. Existing methods typically fuse multi-level
+        features in a fixed, content-agnostic manner, treating all regions and scales as equally informative. We propose
+        <b>DIQA-Router</b>, a distortion-aware framework that learns <i>where</i> and <i>at which feature level</i> to
+        perceive document quality. It dynamically routes informative spatial regions and hierarchical features, followed
+        by dual-domain attention that models spatial dependencies and cross-scale interactions. We further introduce
+        <b>DIQA-6K</b>, a benchmark containing 6,125 authentic and synthetically degraded document images with global
+        MOS and fine-grained annotations over seven distortion categories.</p>
+    </section>
+
+    <!-- ================= ANIMATED DEMOS ================= -->
+    <section>
+      <h2>Live Demos</h2>
+
+      <div class="gifbox">
+        <img src="assets/mos_comparison.gif" alt="MOS prediction vs ground truth">
+        <div>
+          <div class="card-body"><b>① MOS Prediction vs Ground Truth</b></div>
+          <p style="margin:6px 0 0">Animated comparison of predicted MOS against human-rated MOS across representative
+            document images. <span class="score"><span class="gt">GT</span> vs <span class="pred">Pred</span></span>,
+            with the absolute error color-coded (<span class="err">red</span> = larger error).</p>
+        </div>
+      </div>
+
+      <div style="height:18px"></div>
+
+      <div class="gifbox">
+        <img src="assets/distortion_animation.gif" alt="7-dim distortion prediction vs ground truth">
+        <div>
+          <div class="card-body"><b>② Distortion Prediction Animation</b></div>
+          <p style="margin:6px 0 0">Seven distortion dimensions (noise, blur, overexposure, low light, warp, stain,
+            occlusion) — ground truth vs predicted probabilities, animated per category.</p>
+        </div>
+      </div>
+
+      <div style="height:18px"></div>
+
+      <div class="gifbox">
+        <img src="assets/routing_heatmap.gif" alt="Distortion-aware routing heatmap">
+        <div>
+          <div class="card-body"><b>③ Distortion-Aware Routing</b></div>
+          <p style="margin:6px 0 0">Per-patch spatial routing heatmaps — the router adaptively selects where to look
+            depending on the degradation type and content.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= QUALITATIVE ================= -->
+    <section>
+      <h2>Qualitative Results</h2>
+
+      <h3 style="margin-bottom:10px">MOS prediction vs ground truth</h3>
+      <div class="teaser">
+        <img src="assets/mos_scatter.png" alt="MOS prediction agreement">
+        <div class="cap">Calibrated quality predictions plotted against ground-truth MOS. DIQA-Router closely follows
+          subjective quality over most of the score range.</div>
+      </div>
+
+      <div style="height:26px"></div>
+
+      <h3 style="margin-bottom:10px">Distortion prediction: ground truth vs prediction</h3>
+      <div class="teaser">
+        <img src="assets/distortion_comparison.png" alt="distortion prediction comparison">
+        <div class="cap">Ten representative examples with their ground-truth and predicted seven-dimensional distortion
+          distributions. DIQA-Router accurately identifies the dominant distortion while retaining meaningful responses
+          to coexisting degradations.</div>
+      </div>
+    </section>
+
+    <!-- ================= DATASET ================= -->
+    <section>
+      <h2>DIQA-6K Benchmark</h2>
+      <p>6,125 document images (1,500 authentic + 4,625 synthetic) across diverse scenarios, with global MOS and seven
+        distortion categories.</p>
+      <div class="grid">
+        <div class="card"><img src="assets/dataset_samples.png" alt="dataset samples">
+          <div class="body">
+            <div class="t">Diverse scenarios</div>
+            <div class="d">Invoices, printed/handwritten documents, receipts, tickets, books, packages, labels, stickers
+              — authentic and synthetic degradations.</div>
+          </div>
+        </div>
+        <div class="card"><img src="assets/mos_and_distortion_boxplot.png" alt="quality and distortion distributions">
+          <div class="body">
+            <div class="t">Quality &amp; distortion distributions</div>
+            <div class="d">Broad MOS coverage; seven distortion annotations.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= RESULTS ================= -->
+    <section>
+      <h2>Quantitative Results</h2>
+      <h3 style="margin-bottom:10px">Intra-dataset evaluation on DIQA-6K</h3>
+      <table>
+        <tr>
+          <th>Method</th>
+          <th>PLCC ↑</th>
+          <th>SRCC ↑</th>
+          <th>KRCC ↑</th>
+          <th>MSE ↓</th>
+        </tr>
+        <tr>
+          <td>WaDIQaM</td>
+          <td>0.9305</td>
+          <td>0.9301</td>
+          <td>0.7848</td>
+          <td>0.0562</td>
+        </tr>
+        <tr>
+          <td>DBCNN</td>
+          <td>0.9266</td>
+          <td>0.9252</td>
+          <td>0.7767</td>
+          <td>0.0591</td>
+        </tr>
+        <tr>
+          <td>MUSIQ</td>
+          <td>0.8736</td>
+          <td>0.8751</td>
+          <td>0.7037</td>
+          <td>0.2899</td>
+        </tr>
+        <tr>
+          <td>TOPIQ</td>
+          <td class="second">0.9448</td>
+          <td class="second">0.9449</td>
+          <td class="second">0.8077</td>
+          <td>0.3534</td>
+        </tr>
+        <tr>
+          <td>YOTO</td>
+          <td>0.9226</td>
+          <td>0.9200</td>
+          <td>0.7673</td>
+          <td>0.0902</td>
+        </tr>
+        <tr>
+          <td><b>DIQA-Router</b></td>
+          <td class="best">0.9502</td>
+          <td class="best">0.9501</td>
+          <td class="best">0.8179</td>
+          <td class="second">0.0401</td>
+        </tr>
+      </table>
+      <p style="margin-top:14px;font-size:13px;color:var(--dim)">Best in <span class="best">green</span>, second-best in
+        <span class="second">yellow</span>. See the paper for cross-dataset and ablation results.</p>
+    </section>
+
+    <!-- ================= CITATION ================= -->
+    <section id="citation">
+      <h2>Citation</h2>
+      <pre>@article{chen2025router,
+  title   = {Route What Matters: Distortion-Aware Feature Selection for Document Image Quality Assessment},
+  author  = {Chen, Baoliang and Wu, Ruochen and Zhou, Zhihua and Zhang, Qiudan and Wang, Xu},
+  journal = {arXiv preprint},
+  year    = {2025}
+}</pre>
+    </section>
+
+  </div>
+
+  <footer>
+    <span class="badge">DIQA-Router</span>
+    <span class="badge">DIQA-6K</span>
+    <span class="badge">Document Image Quality Assessment</span>
+    <br><br>
+    Built with ❤️ · <a href="https://github.com/ruo0/DIQA6K">github.com/ruo0/DIQA6K</a>
+  </footer>
+
+</body>
+
+</html>
