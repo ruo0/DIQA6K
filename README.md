@@ -1,5 +1,7 @@
 # DIQA-Router: Distortion-Aware Feature Selection for Document Image Quality Assessment
 
+**Project Page**: https://ruo0.github.io/DIQA6K/
+
 Official implementation of **"Route What Matters: Distortion-Aware Feature Selection for Document Image Quality Assessment"**.
 
 DIQA-Router is a distortion-aware framework that learns *where* and *at which feature level* to perceive document quality. It dynamically routes informative spatial regions and hierarchical features via a distortion-aware router, followed by a dual-domain Transformer that models spatial dependencies and cross-scale interactions.
@@ -8,6 +10,9 @@ DIQA-Router is a distortion-aware framework that learns *where* and *at which fe
 
 ```
 .
+├── docs/                      # project homepage (served by GitHub Pages)
+│   ├── index.html
+│   └── assets/
 ├── logitandpool-moe-swin.py   # training / evaluation entry point
 ├── losszoo.py                 # loss functions (norm-in-norm, rank, etc.)
 ├── splits/                    # 60/20/20 partitions, 10 repeats (split_1 .. split_10)
