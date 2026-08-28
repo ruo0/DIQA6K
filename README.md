@@ -13,6 +13,9 @@ DIQA-Router is a distortion-aware framework that learns *where* and *at which fe
 ├── docs/                      # project homepage (served by GitHub Pages)
 │   ├── index.html
 │   └── assets/
+├── demo.py                    # single-image inference demo
+├── fit_mos_params.py          # fit raw prediction -> MOS mapping (5-param)
+├── mos_fit_params.json        # pre-fitted calibration parameters for demo.py
 ├── logitandpool-moe-swin.py   # training / evaluation entry point
 ├── losszoo.py                 # loss functions (norm-in-norm, rank, etc.)
 ├── splits/                    # 60/20/20 partitions, 10 repeats (split_1 .. split_10)
@@ -68,6 +71,38 @@ python logitandpool-moe-swin.py \
 - timm
 - numpy, pandas, Pillow, scipy
 - `losszoo.py` (included in this repo)
+
+## Quick Demo
+
+Run single-image inference with the pretrained model (default: `split_5`):
+
+```bash
+python demo.py --img path/to/your_image.jpg
+```
+
+or use it as a library:
+
+```python
+from demo import demo
+score, distortion_type = demo("path/to/your_image.jpg")
+```
+
+- `score` — predicted MOS, calibrated to the 1–5 scale via a 5-parameter logistic mapping (pre-fitted on the DIQA-6K test set; stored in `mos_fit_params.json`).
+- `distortion_type` — the dominant distortion among `noise, blur, overexposure, lowlight, warp, stain, occlusion`.
+
+`demo.py` needs a checkpoint (default `./checkpoints-logit-swin-all-best/split_5_best.pth`, included in the dataset archive or produced by training) and `mos_fit_params.json`. To re-fit the calibration on your own predictions:
+
+```bash
+# from an existing prediction csv (columns: pred_mos, gt_mos)
+python fit_mos_params.py --csv test_predictions.csv --out mos_fit_params.json
+
+# or infer the test split with a checkpoint first, then fit
+python fit_mos_params.py \
+    --ckpt ./checkpoints-logit-swin-all-best/split_5_best.pth \
+    --split_dir ./splits/split_5 \
+    --image_dir ./DIQA-6K/images \
+    --out mos_fit_params.json
+```
 
 ## How It Runs
 
